@@ -1,6 +1,6 @@
 import numpy as np
 
-NUM_DAYS = 10000
+NUM_DAYS = 1_000_000
 THRESHOLDS = [0, 2, 5, 10, 15, 20]
 SIGNAL_NOISE = 10
 MIN_VALUE = 80
@@ -14,6 +14,19 @@ def calculate_max_drawdown(equity_curve):
     drawdowns = equity_curve - peaks
 
     return drawdowns.min()
+
+def calculate_sharpe_ratio(trade_profits):
+    if len(trade_profits) == 0:
+        return 0
+    
+    average_profit = trade_profits.mean()
+    profit_std = trade_profits.std()
+
+    if profit_std == 0:
+        return 0
+    
+    sharpe_ratio = average_profit / profit_std
+    return sharpe_ratio
 
 def run_simulation(threshold, num_days = NUM_DAYS):
     #1 Generate Market Data
@@ -72,6 +85,7 @@ def run_simulation(threshold, num_days = NUM_DAYS):
         profit_factor = 0
 
     max_drawdown = calculate_max_drawdown(equity_curve)
+    sharpe_ratio = calculate_sharpe_ratio(trade_profits)
 
     return {
         "threshold": threshold,
@@ -85,6 +99,7 @@ def run_simulation(threshold, num_days = NUM_DAYS):
         "average_loss": avg_loss,
         "profit_factor": profit_factor,
         "max_drawdown": max_drawdown,
+        "sharpe_ratio": sharpe_ratio,
         "equity_curve": equity_curve
     }
 
@@ -95,7 +110,8 @@ for threshold in thresholds:
     experiment= run_simulation(threshold, num_days = NUM_DAYS)
     results.append(experiment)
 
-best_experiment = max(results, key=lambda x: x["cash"])
+best_by_profit = max(results, key=lambda x: x["cash"])
+best_by_sharpe = max(results, key=lambda x: x["sharpe_ratio"])
 
 for experiment in results:
     print("Threshold:", experiment["threshold"])
@@ -107,11 +123,14 @@ for experiment in results:
     print("Average loss:", round(experiment["average_loss"], 2))
     print("Profit factor:", round(experiment["profit_factor"], 2))
     print("Max drawdown:", round(experiment["max_drawdown"], 2))
+    print("Sharpe ratio:", round(experiment["sharpe_ratio"], 2))
     print("Final equity:", round(experiment["cash"], 2))
     print("----------------------")
 
 
-print("Best threshold:", best_experiment["threshold"])
-print("Best total profit:", round(best_experiment["cash"], 2))
+print("Best threshold by profit:", best_by_profit["threshold"])
+print("Best total profit:", round(best_by_profit["cash"], 2))
 
+print("Best threshold by Sharpe:", best_by_sharpe["threshold"])
+print("Best Sharpe ratio:", round(best_by_sharpe["sharpe_ratio"], 2))
 
