@@ -1,10 +1,18 @@
 import numpy as np
 
+# ======================
+# SETTINGS
+# ======================
+
 NUM_DAYS = 1_000_000
 THRESHOLDS = [0, 2, 5, 10, 15, 20]
 SIGNAL_NOISE = 10
 MIN_VALUE = 80
 MAX_VALUE = 120
+
+# ======================
+# METRICS
+# ======================
 
 def calculate_max_drawdown(equity_curve):
     if len(equity_curve) == 0:
@@ -28,23 +36,7 @@ def calculate_sharpe_ratio(trade_profits):
     sharpe_ratio = average_profit / profit_std
     return sharpe_ratio
 
-def run_simulation(threshold, num_days = NUM_DAYS):
-    #1 Generate Market Data
-    true_values = np.random.randint(MIN_VALUE, MAX_VALUE + 1, size=num_days)
-    signals = true_values + np.random.normal(0, SIGNAL_NOISE, size=num_days)
-    market_prices = np.random.randint(MIN_VALUE, MAX_VALUE + 1, size=num_days)
-
-    #2 Calculate Edge
-    edges = signals - market_prices
-
-    #3 Decide which days we execute trades
-    trade_mask = edges > threshold
-
-    #4 Calculate profits only on the days we are making trades
-    trade_profits = true_values[trade_mask] - market_prices[trade_mask]
-
-    #5 Core metrics
-
+def calculate_metrics(trade_profits):
     trades = len(trade_profits)
     cash = trade_profits.sum()
 
@@ -59,9 +51,9 @@ def run_simulation(threshold, num_days = NUM_DAYS):
         wins = 0
         losses = 0
         win_rate = 0
-        equity_curve = 0
+        equity_curve = np.array([])
 
-    #6 Win/Loss Metrics
+    #Win/Loss Metrics
     winning_trades = trade_profits[trade_profits > 0]
     losing_trades = trade_profits[trade_profits < 0]
 
@@ -88,7 +80,6 @@ def run_simulation(threshold, num_days = NUM_DAYS):
     sharpe_ratio = calculate_sharpe_ratio(trade_profits)
 
     return {
-        "threshold": threshold,
         "cash": cash,
         "trades": trades,
         "average_profit_per_trade": avg_profit_per_trade,
@@ -103,34 +94,85 @@ def run_simulation(threshold, num_days = NUM_DAYS):
         "equity_curve": equity_curve
     }
 
-thresholds = [0, 2, 5, 10, 15, 20]
+# ======================
+# Market Simulation
+# ======================
+
+def generate_market_data(num_days):
+    true_values = np.random.randint(MIN_VALUE, MAX_VALUE + 1, size=num_days)
+    signals = true_values + np.random.normal(0, SIGNAL_NOISE, size=num_days)
+    market_prices = np.random.randint(MIN_VALUE, MAX_VALUE + 1, size=num_days)
+
+    return true_values, signals, market_prices
+
+# ======================
+# Strategies
+# ======================
+
+def run_signal_strategy(true_values, signals, market_prices, threshold):
+    #Calculate Edge
+    edges = signals - market_prices
+
+    #Decide which days we execute trades
+    trade_mask = edges > threshold
+
+    #Calculate profits on traded days
+    trade_profits = true_values[trade_mask] - market_prices[trade_mask]
+
+    metrics = calculate_metrics(trade_profits)
+    metrics["strategy"] = "signal"
+    metrics["threshold"] = threshold
+
+    return metrics
+
+# ======================
+# Printing
+# ======================
+
+def print_results(results):
+    for experiment in results:
+        print("Threshold:", experiment["threshold"])
+        print("Total profit:", round(experiment["cash"], 2))
+        print("Trades:", experiment["trades"])
+        print("Average profit per trade:", round(experiment["average_profit_per_trade"], 2))
+        print("Win rate:", round(experiment["win_rate"] * 100, 2), "%")
+        print("Average win:", round(experiment["average_win"], 2))
+        print("Average loss:", round(experiment["average_loss"], 2))
+        print("Profit factor:", round(experiment["profit_factor"], 2))
+        print("Max drawdown:", round(experiment["max_drawdown"], 2))
+        print("Sharpe ratio:", round(experiment["sharpe_ratio"], 2))
+        print("Final equity:", round(experiment["cash"], 2))
+        print("----------------------")
+
+# ======================
+# Experiment Runner
+# ======================
+
+true_values, signals, market_prices = generate_market_data(NUM_DAYS)
+
 results = []
 
-for threshold in thresholds:
-    experiment= run_simulation(threshold, num_days = NUM_DAYS)
+for threshold in THRESHOLDS:
+    experiment = run_signal_strategy(
+        true_values=true_values,
+        signals=signals,
+        market_prices=market_prices,
+        threshold=threshold
+    )
+
     results.append(experiment)
+
+print_results(results)
+
+# ======================
+# Best Threshold
+# ======================
 
 best_by_profit = max(results, key=lambda x: x["cash"])
 best_by_sharpe = max(results, key=lambda x: x["sharpe_ratio"])
-
-for experiment in results:
-    print("Threshold:", experiment["threshold"])
-    print("Total profit:", round(experiment["cash"], 2))
-    print("Trades:", experiment["trades"])
-    print("Average profit per trade:", round(experiment["average_profit_per_trade"], 2))
-    print("Win rate:", round(experiment["win_rate"] * 100, 2), "%")
-    print("Average win:", round(experiment["average_win"], 2))
-    print("Average loss:", round(experiment["average_loss"], 2))
-    print("Profit factor:", round(experiment["profit_factor"], 2))
-    print("Max drawdown:", round(experiment["max_drawdown"], 2))
-    print("Sharpe ratio:", round(experiment["sharpe_ratio"], 2))
-    print("Final equity:", round(experiment["cash"], 2))
-    print("----------------------")
-
 
 print("Best threshold by profit:", best_by_profit["threshold"])
 print("Best total profit:", round(best_by_profit["cash"], 2))
 
 print("Best threshold by Sharpe:", best_by_sharpe["threshold"])
 print("Best Sharpe ratio:", round(best_by_sharpe["sharpe_ratio"], 2))
-
