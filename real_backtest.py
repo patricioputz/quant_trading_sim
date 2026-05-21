@@ -77,3 +77,34 @@ print("Moving Average Sharpe:", round(strategy_sharpe, 2))
 print("Buy ad Hold Sharpe:", round(buy_hold_sharpe, 2))
 print("Moving Average Max Drawdown:", round(strategy_max_drawdown * 100, 2), "%")
 print("Buy and Hold Max Drawdown:", round(buy_hold_max_drawdown * 100, 2), "%")
+
+print("\nREAL BACKTEST SUMMARY")
+print("=" * 90)
+
+header = (
+    f"{'Strategy':<20}"
+    f"{'Total Return':>15}"
+    f"{'Sharpe':>12}"
+    f"{'Max Drawdown' :>15}"
+)
+
+print(header)
+print("-" * 90)
+
+moving_averge_row = (
+    f"{'Moving Average':<20}"
+    f"{round(strategy_total_return * 100, 2):>14}%"
+    f"{round(strategy_sharpe, 2):>12}"
+    f"{round(strategy_max_drawdown * 100, 2):>14}%"
+)
+
+buy_hold_row = (
+    f"{'Buy and Hold':<20}"
+    f"{round(buy_hold_total_return * 100, 2):>14}%"
+    f"{round(buy_hold_sharpe, 2):>12}"
+    f"{round(buy_hold_max_drawdown * 100, 2):>14}%"
+)
+
+print(moving_averge_row)
+print(buy_hold_row)
+print("=" * 90)
