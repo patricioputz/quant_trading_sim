@@ -10,6 +10,9 @@ SIGNAL_NOISE = 10
 MIN_VALUE = 80
 MAX_VALUE = 120
 
+TRANSACTION_COST_RATE = 0.0001   # 0.01%
+SLIPPAGE_RATE = 0.0005           # 0.05%
+
 # ======================
 # METRICS
 # ======================
@@ -95,6 +98,15 @@ def calculate_metrics(trade_profits):
     }
 
 # ======================
+# COSTS
+# ======================
+
+def apply_trading_costs(trade_profits, traded_prices):
+    total_cost_rate = TRANSACTION_COST_RATE + SLIPPAGE_RATE
+    costs = traded_prices * total_cost_rate
+    return trade_profits - costs
+
+# ======================
 # Market Simulation
 # ======================
 
@@ -118,6 +130,10 @@ def run_signal_strategy(true_values, signals, market_prices, threshold):
 
     #Calculate profits on traded days
     trade_profits = true_values[trade_mask] - market_prices[trade_mask]
+    trade_profits = apply_trading_costs(
+        trade_profits=trade_profits,
+        traded_prices=market_prices[trade_mask]
+    )
 
     metrics = calculate_metrics(trade_profits)
     metrics["strategy"] = "signal"
@@ -130,6 +146,10 @@ def run_random_strategy(true_values, market_prices, trade_probability):
     trade_mask = random_numbers < trade_probability
 
     trade_profits = true_values[trade_mask] - market_prices[trade_mask]
+    trade_profits = apply_trading_costs(
+        trade_profits=trade_profits,
+        traded_prices=market_prices[trade_mask]
+    )
 
     metrics = calculate_metrics(trade_profits)
     metrics["strategy"] = "random"
