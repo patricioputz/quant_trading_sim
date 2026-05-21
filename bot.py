@@ -141,6 +141,8 @@ def run_signal_strategy(true_values, signals, market_prices, threshold):
 
     return metrics
 
+#random basline strat
+
 def run_random_strategy(true_values, market_prices, trade_probability):
     random_numbers = np.random.random(size=len(true_values))
     trade_mask = random_numbers < trade_probability
@@ -158,6 +160,21 @@ def run_random_strategy(true_values, market_prices, trade_probability):
 
     return metrics
 
+#buy and hold basline strat
+
+def run_buy_and_hold_strategy(true_values, market_prices):
+    trade_profits = true_values - market_prices
+
+    trade_profits = apply_trading_costs(
+        trade_profits=trade_profits,
+        traded_prices=market_prices
+    )
+
+    metrics = calculate_metrics(trade_profits)
+    metrics["strategy"] = "buy_hold"
+    metrics["threshold"] = None
+    
+    return metrics
 
 # ======================
 # Printing
@@ -216,6 +233,7 @@ true_values, signals, market_prices = generate_market_data(NUM_DAYS)
 results = []
 
 for threshold in THRESHOLDS:
+    #signal
     signal_experiment = run_signal_strategy(
         true_values=true_values,
         signals=signals,
@@ -225,6 +243,7 @@ for threshold in THRESHOLDS:
 
     results.append(signal_experiment)
 
+    #random
     trade_probability = signal_experiment["trades"] / NUM_DAYS
 
     random_experiment = run_random_strategy(
@@ -233,7 +252,16 @@ for threshold in THRESHOLDS:
         trade_probability = trade_probability
     )
 
-    results.append(random_experiment)
+results.append(random_experiment)
+
+#buy_hold
+
+buy_hold_experiment = run_buy_and_hold_strategy(
+    true_values = true_values,
+    market_prices = market_prices
+)
+
+results.append(buy_hold_experiment)
 
 print_results_table(results)
 
