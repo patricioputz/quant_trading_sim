@@ -125,12 +125,27 @@ def run_signal_strategy(true_values, signals, market_prices, threshold):
 
     return metrics
 
+def run_random_strategy(true_values, market_prices, trade_probability):
+    random_numbers = np.random.random(size=len(true_values))
+    trade_mask = random_numbers < trade_probability
+
+    trade_profits = true_values[trade_mask] - market_prices[trade_mask]
+
+    metrics = calculate_metrics(trade_profits)
+    metrics["strategy"] = "random"
+    metrics["threshold"] = None
+    metrics["trade_probability"] = trade_probability
+
+    return metrics
+
+
 # ======================
 # Printing
 # ======================
 
 def print_results(results):
     for experiment in results:
+        print("Strategy:", experiment["strategy"])
         print("Threshold:", experiment["threshold"])
         print("Total profit:", round(experiment["cash"], 2))
         print("Trades:", experiment["trades"])
@@ -153,14 +168,24 @@ true_values, signals, market_prices = generate_market_data(NUM_DAYS)
 results = []
 
 for threshold in THRESHOLDS:
-    experiment = run_signal_strategy(
+    signal_experiment = run_signal_strategy(
         true_values=true_values,
         signals=signals,
         market_prices=market_prices,
         threshold=threshold
     )
 
-    results.append(experiment)
+    results.append(signal_experiment)
+
+    trade_probability = signal_experiment["trades"] / NUM_DAYS
+
+    random_experiment = run_random_strategy(
+        true_values = true_values,
+        market_prices = market_prices,
+        trade_probability = trade_probability
+    )
+
+    results.append(random_experiment)
 
 print_results(results)
 
@@ -171,8 +196,10 @@ print_results(results)
 best_by_profit = max(results, key=lambda x: x["cash"])
 best_by_sharpe = max(results, key=lambda x: x["sharpe_ratio"])
 
+print("Best strategy by profit:", best_by_profit["strategy"])
 print("Best threshold by profit:", best_by_profit["threshold"])
 print("Best total profit:", round(best_by_profit["cash"], 2))
 
+print("Best strategy by Sharpe:", best_by_sharpe["strategy"])
 print("Best threshold by Sharpe:", best_by_sharpe["threshold"])
 print("Best Sharpe ratio:", round(best_by_sharpe["sharpe_ratio"], 2))
