@@ -163,21 +163,49 @@ def run_random_strategy(true_values, market_prices, trade_probability):
 # Printing
 # ======================
 
-def print_results(results):
+def print_results_table(results):
+    print("\n RESULTS SUMMARY")
+    print("=" * 115)
+
+    header = (
+        f"{'Strategy':<10}"
+        f"{'Threshold':>10}"
+        f"{'Profit':>15}"
+        f"{'Trades':>12}"
+        f"{'Avg/Trade':>12}"
+        f"{'Win Rate':>12}"
+        f"{'Profit F.':>12}"
+        f"{'Max DD':>12}"
+        f"{'Sharpe':>10}"
+    )
+    
+    print(header)
+    print("-" * 115)
+
     for experiment in results:
-        print("Strategy:", experiment["strategy"])
-        print("Threshold:", experiment["threshold"])
-        print("Total profit:", round(experiment["cash"], 2))
-        print("Trades:", experiment["trades"])
-        print("Average profit per trade:", round(experiment["average_profit_per_trade"], 2))
-        print("Win rate:", round(experiment["win_rate"] * 100, 2), "%")
-        print("Average win:", round(experiment["average_win"], 2))
-        print("Average loss:", round(experiment["average_loss"], 2))
-        print("Profit factor:", round(experiment["profit_factor"], 2))
-        print("Max drawdown:", round(experiment["max_drawdown"], 2))
-        print("Sharpe ratio:", round(experiment["sharpe_ratio"], 2))
-        print("Final equity:", round(experiment["cash"], 2))
-        print("----------------------")
+        threshold = experiment["threshold"]
+
+        if threshold is None:
+            threshold_display = "N/A"
+        else: 
+            threshold_display = str(threshold)
+        
+        row = (
+            f"{experiment['strategy']:<10}"
+            f"{threshold_display:>10}"
+            f"{round(experiment['cash'], 2):>15,}"
+            f"{experiment['trades']:>12,}"
+            f"{round(experiment['average_profit_per_trade'], 2):>12}"
+            f"{round(experiment['win_rate'] * 100, 2):>11}%"
+            f"{round(experiment['profit_factor'], 2):>12}"
+            f"{round(experiment['max_drawdown'], 2):>12}"
+            f"{round(experiment['sharpe_ratio'], 2):>10}"
+        )
+
+        print(row)
+    
+    print("=" * 115)
+        
 
 # ======================
 # Experiment Runner
@@ -207,7 +235,7 @@ for threshold in THRESHOLDS:
 
     results.append(random_experiment)
 
-print_results(results)
+print_results_table(results)
 
 # ======================
 # Best Threshold
