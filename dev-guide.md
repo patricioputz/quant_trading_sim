@@ -1,5 +1,19 @@
 # QuantLab — Developer Guide
 
+## Git Workflow
+
+After every meaningful set of changes in a conversation — not every single file edit, but at natural checkpoints (feature complete, bug fixed, refactor done) — commit and push to GitHub:
+
+```bash
+git add <changed files>
+git commit -m "short description of what changed"
+git push origin main
+```
+
+Don't let multiple unrelated changes pile up in one commit. One logical change = one commit.
+
+---
+
 ## Running the App
 
 ```bash
