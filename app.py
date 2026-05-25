@@ -334,8 +334,8 @@ def monthly_heatmap(equity_curve, title="Monthly Returns"):
         height=max(160, len(ylbls) * 26 + 55),
         margin=dict(l=4, r=4, t=44, b=4),
         title=dict(text=title, font=dict(size=11, color="#2d3a52"), x=0, xanchor="left"),
-        xaxis=dict(side="top", gridcolor="transparent", tickfont=dict(size=10)),
-        yaxis=dict(gridcolor="transparent", autorange="reversed", tickfont=dict(size=10)),
+        xaxis=dict(side="top", gridcolor="rgba(0,0,0,0)", tickfont=dict(size=10)),
+        yaxis=dict(gridcolor="rgba(0,0,0,0)", autorange="reversed", tickfont=dict(size=10)),
     )
     return fig
 
