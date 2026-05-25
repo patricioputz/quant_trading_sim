@@ -509,7 +509,13 @@ with st.sidebar:
     st.markdown("")
     run_btn = st.button("▶  Run Analysis", type="primary", use_container_width=True)
     st.divider()
-    st.caption("Data · Yahoo Finance\nResearch use only · Not financial advice")
+    st.markdown(
+        '<div style="font-size:0.68rem;color:#1e2d47;line-height:1.7">'
+        'Data · Yahoo Finance<br>Research use only · Not financial advice<br>'
+        '<span style="color:#2d3a52">Built by <b style="color:#4a5a7a">Patricio Putz</b></span>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # ── Page header ────────────────────────────────────────────────────────────────
