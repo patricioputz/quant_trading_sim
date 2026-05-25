@@ -5,4 +5,5 @@ __pycache__/
 .venv/
 venv/
 dev-guide.md
+CLAUDE.md
 equity_curve.png
