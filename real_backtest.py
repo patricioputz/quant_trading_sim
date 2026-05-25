@@ -22,12 +22,12 @@ TRADING_DAYS = 252
 def load_price_data(ticker, start_date, end_date):
     """
     Downloads real price data from Yahoo Finance. 
-    Returns it to a Panda database.
+    Returns it to a pandas database.
     """
     data = yf.download(
-        TICKER,
-        start=START_DATE,
-        end=END_DATE,
+        ticker,
+        start=start_date,
+        end=end_date,
         auto_adjust=True,
         progress=False
     )
