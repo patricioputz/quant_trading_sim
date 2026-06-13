@@ -2,6 +2,8 @@
 
 A Python-based quantitative research platform for backtesting systematic trading strategies on real market data. Includes an interactive web dashboard and paper trading simulator.
 
+**Live app:** [quanttradingsim-production.up.railway.app](https://quanttradingsim-production.up.railway.app)
+
 ---
 
 ## Features
